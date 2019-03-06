@@ -1,0 +1,202 @@
+<template>
+	<div class="page">
+    <div class="navbar">
+      <div class="navbar-inner" style="background-color: #F18D62;">
+      </div>
+    </div>
+    <div class="page-content bg-color-df ptr-content" @ptr:refresh="pullToRefresh">
+        <div class="ptr-preloader">
+          <div class="preloader"></div>
+          <div class="ptr-arrow"></div>
+        </div>
+      <!-- 用户信息 -->
+      <div class="user-header" id="userPersonalInfo">
+        <div class="list">
+          <ul class="user-header-ul">
+            <li class="user-header-li">
+              <a href="/login/" class="item-content item-link">
+                <div class="item-media">
+                  <img src="./img/index-head.png" width="65"/>
+                </div>
+                <div class="item-inner">
+                  <div class="item-title">未登录
+                    <div class="item-header">
+                      <div class="user-ranke">未激活</div>
+                    </div>
+                  </div>
+                  <div class="item-after">
+                   
+                  </div>
+                </div>
+              </a>
+            </li>
+          </ul> 
+        </div>
+      </div>
+        
+      <!-- 分类 -->
+      <div class="list">
+        <ul>
+          <li>
+            <a @click="clickToManagement" class="item-content item-link">
+              <div class="item-media"><img src="img/icon_cwgl.png" width="65"/></div>
+              <div class="item-inner">
+                <div class="item-title">财务管理
+                </div>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="/attract-inv/" class="item-content item-link">
+              <div class="item-media"><img src="img/icon_cwfxs.png" width="65"/></div>
+              <div class="item-inner">
+                <div class="item-title">成为分销商
+                </div>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a @click="clickToAccountDetail" class="item-content item-link">
+              <div class="item-media"><img src="img/icon_jfmx.png" width="65"/></div>
+              <div class="item-inner">
+                <div class="item-title">积分明细
+                </div>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a @click="clickToMyTeam" class="item-content item-link">
+              <div class="item-media"><img src="img/icon_wdtd.png" width="65"/></div>
+              <div class="item-inner">
+                <div class="item-title">我的团队
+                </div>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a @click="clickToMyRecomm" class="item-content item-link">
+              <div class="item-media"><img src="img/icon_wdtj.png" width="65"/></div>
+              <div class="item-inner">
+                <div class="item-title">我的推荐
+                </div>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="/about-us/" class="item-content item-link">
+              <div class="item-media"><img src="img/icon_aboutus.png" width="65"/></div>
+              <div class="item-inner">
+                <div class="item-title">关于我们
+                </div>
+              </div>
+            </a>
+          </li>
+          <li class="{{displayNone}}">
+            <a href="/user-activate/" class="item-content item-link">
+              <div class="item-media"><img src="img/icon _activate@2x.png" width="65"/></div>
+              <div class="item-inner">
+                <div class="item-title">激活
+                </div>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- 用户登出 -->
+      <div class="list user-logout">
+        <ul>
+          <li>
+            <div class="item-content" onclick="sureLoginOut()">
+              <div class="item-media"><img src="img/icon_logout.png" width="65"/></div>
+              <div class="item-inner">
+                <div class="item-title">退出
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <!-- 上传图片 -->
+     
+
+    </div>
+  </div>
+</template>
+
+<script>
+  return {
+    // Component Data
+    data: function () {
+      return {
+        displayNone: "display-none"
+      }
+    },
+    // Component Methods
+    methods: {
+      pullToRefresh: function(){
+        setTimeout(function () {
+          personalView.router.refreshPage();
+        }, 500);
+      },
+      clickToManagement: function() {
+        if(accessToken){
+          personalView.router.navigate('/financial-management/');
+        }else{
+          showNotificationFull('您还未登录！请先登录。');
+        }
+      },
+      clickToAccountDetail: function() {
+        if(accessToken){
+          personalView.router.navigate('/with-count-detail/');
+        }else{
+          showNotificationFull('您还未登录！请先登录。');
+        }
+      },
+      clickToMyTeam: function() {
+        if(accessToken){
+          personalView.router.navigate('/user-team/');
+        }else{
+          showNotificationFull('您还未登录！请先登录。');
+        }
+      },
+      clickToMyRecomm: function() {
+        if(accessToken){
+          personalView.router.navigate('/user-recommend/');
+        }else{
+          showNotificationFull('您还未登录！请先登录。');
+        }
+      },
+    },
+    // Page Events
+    on: {
+      pageInit: function() {
+        getUserInfoPersonal();
+      },
+      pageAfterIn: function() {
+        var self = this;
+        //调用h5+
+        function plusReady() {
+        // 监听“返回”按钮事件
+            plus.key.addEventListener("backbutton", function() {
+              personalView.router.back()
+            }); // 在这里调用plus api
+        }
+        if (window.plus) {
+            plusReady();
+        } else {
+            document.addEventListener('plusready', plusReady, false);
+        }
+        if(localStorage.activate_status == "false") {
+          self.$setState({
+            displayNone: ""
+          })
+        } else {
+          self.$setState({
+            displayNone: "display-none"
+          })
+        }
+      }
+
+    }
+  }
+</script>

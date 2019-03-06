@@ -1,0 +1,249 @@
+<template>
+  <div class="page no-toolbar" id="userSignIn">
+    <div class="navbar">
+      <div class="navbar-inner bg-color-df">
+        <div class="left">
+          <a href="#" class="link back" data-panel="left">
+            <i class="fa fa-chevron-left color-333"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="page-content login-screen-content bg-color-df">
+      <div class="login-screen-title">
+        <img src="img/app-logo.png">
+      </div>
+      <form>
+        <div class="list">
+          <ul>
+            <li class="item-content item-input item-input-with-value">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/icon_acctransfer@2x.png">&nbsp;&nbsp;姓名</div>
+                <div class="item-input-wrap">
+                  <input type="text" placeholder="请输入姓名" id="signin-username" class="input-with-value" maxlength="11" required validate  data-error-message="姓名格式不正确">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input item-input-with-value">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-phone.png">&nbsp;&nbsp;手机</div>
+                <div class="item-input-wrap">
+                  <input type="text" placeholder="请输入手机号" id="signin-phone" class="input-with-value" maxlength="11" required validate pattern="[0-9]*" data-error-message="手机号码不正确">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-number.png">&nbsp;&nbsp;设置编号<br><span class="add-plain">（6位数字与字母组合，且首位为字母）</span></div>
+                <div class="item-input-wrap">
+                  <input type="text" placeholder="请输入6位编号" id="signin-num" maxlength="6" required validate data-error-message="请输入6位数字、字母组合，首位为字母">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-number.png">&nbsp;&nbsp;推荐人编号：</div>
+                <div class="item-input-wrap">
+                  <input id="dp1" type="text" maxlength="6" placeholder="请输入推荐人编号">
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-number.png">&nbsp;&nbsp;接点人编号：</div>
+                <div class="item-input-wrap">
+                  <input id="dp2" type="text" maxlength="6" placeholder="请输入接点人编号">
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-pass.png">&nbsp;&nbsp;密码<span class="add-plain">（6-18位数字与字母组合）</span></div>
+                <div class="item-input-wrap">
+                  <input type="password" placeholder="请输入密码" id="signin-password-1" class="" maxlength="18" required validate data-error-message="密码不能为空">
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-pass.png">&nbsp;&nbsp;再次输入密码</div>
+                <div class="item-input-wrap">
+                  <input type="password" placeholder="请再次输入密码" id="signin-password-2" class="" maxlength="18" required validate data-error-message="请输入6-18位数字、字母组合">
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input">
+              <div class="item-inner">
+                <div class="item-title-row item-label">
+                  <div class="item-title">
+                    <img src="img/user-code.png">&nbsp;&nbsp;验证码
+                  </div>
+                  <div class="item-after button button-outline button-round button-raised {{buttonStyle}}" @click="getVerCode">{{buttonText}}</div>
+                </div>
+                <div class="item-input-wrap">
+                  <input type="text" placeholder="请输入收到的验证码" id="signin-code" class="" maxlength="6" required validate data-error-message="验证码输入不正确">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input">
+              <div class="item-inner">
+                <div class="item-title item-label" style="font-weight: normal;color: #999;"><img src="img/user-agree.png">&nbsp;&nbsp;我已阅读并同意<a href="">《用户服务协议及隐私政策》</a></div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="list" style="margin: 25px auto;">
+          <ul>
+            <li><a href="#" class="item-link list-button" @click="signIn">注册</a></li>
+          </ul>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+<script>
+  return {
+    data: function() {
+      return {
+        btnStatus: true,
+        countTime: 180,
+        buttonText: "获取验证码",
+        buttonStyle: ""
+      }
+    },
+    methods: {
+      goBack: function() {
+        // app.router.navigate('/personal/')
+        homeView.router.back()
+      },
+      getVerCode: function() {
+        var self =this 
+        var $ = this.$;
+        var signinPhone = $('input#signin-phone').val();
+        if (reg.checkPhone(signinPhone)) {
+          if (self.countTime==180) {
+            getVerifyCode(signinPhone);
+            if (self.countTime>0) {
+              timer = setInterval(function(){
+                var time=self.countTime-1;
+                var Text= time+"秒后重新发送" 
+                self.$setState({
+                  countTime: time,
+                  buttonText: Text,
+                  buttonStyle: "button-style"
+                })
+                if(time<0){     //判断,当时间值小于等于0的时候 
+                  clearInterval(timer); //清除定时器
+                  self.$setState({
+                      countTime: 180,
+                      buttonText: "重新发送",
+                      buttonStyle: ""
+                  })
+                }
+              },1000)
+            }
+          }
+        } else {
+          app.dialog.alert("请检查手机号是否输入正确。")
+        }
+          
+      },
+      signIn: function () {
+        var self = this
+        var $ = this.$;
+        var app = this.$app;
+        var data = {};
+        var router = this.$router;
+        var signinName = $('input#signin-username').val();
+        var signinPhone = $('input#signin-phone').val();
+        var signinCode = $('input#signin-code').val();
+        var signinPass1 = $('input#signin-password-1').val();
+        var signinPass2 = $('input#signin-password-2').val();
+        var signinNum = $('input#signin-num').val();
+        if (signinName && signinPhone && signinCode && signinPass1 && signinPass2 && signinNum) {
+          if (reg.checkPhone(signinPhone)) {
+            if (reg.checkPassNum(signinPass1)) {
+              if (signinPass1==signinPass2) {
+                if (reg.checkFirstLetter(signinNum)) {
+                  data = {
+                    name: signinName,
+                    mobile: signinPhone,
+                    password: signinPass1,
+                    number: signinNum,
+                    smsCode: signinCode,
+                  };
+                  if (self.btnStatus) {
+                    self.btnStatus = false;
+                    app.request({
+                      url: apiUrl + '/regist',
+                      type: 'post',
+                      async: true,
+                      data: data,
+                      dataType: "json",
+                      success: function (response) {
+                        self.btnStatus = true;
+                        if (response.status) {
+                          console.log(response)
+                          var uid = $('input#dp1').val();
+                          var pid = $('input#dp2').val();
+                          var data1 = {
+                            creator: response.data,
+                            productId: 1,
+                            amount: 1,
+                            introducerNumber: uid,
+                            parentNumber: pid,
+                          };
+                          if (uid && pid) {
+                            buyToActivate(data1);
+                          } else {
+                            app.dialog.alert('请输入完整信息')
+                          }
+                        } else {
+                          app.dialog.alert(response.message)
+                        }
+                      },
+                      error: function() {
+                        app.dialog.alert("注册失败！请重试。")
+                      },
+                      complete: function() {
+                        self.btnStatus = true;
+                      },
+                    });
+                  }
+                } else {
+                  app.dialog.alert("编号输入格式不正确！");
+                }
+
+              } else {
+                app.dialog.alert("两次密码输入不一致");
+              }
+            } else {
+              app.dialog.alert("密码输入格式不正确！");
+            }
+
+          } else {
+            app.dialog.alert("手机号码输入格式不正确！");
+
+          }
+        } else {
+          app.dialog.alert("请输入完整信息！");
+        }
+         // # 
+
+
+      }
+    },
+    on: {
+      pageAfterIn:function(){
+       
+      },
+      pageBeforeOut: function(e, page) {
+       clearInterval(timer); 
+      },
+    }
+  }
+</script>

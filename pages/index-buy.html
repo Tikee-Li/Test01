@@ -1,0 +1,103 @@
+<template>
+  <div class="page no-toolbar">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="left">
+          <a href="" class="link back" data-panel="left">
+            <i class="fa fa-chevron-left color-333"></i>
+          </a>
+        </div>
+        <div class="title">
+	       产品详情
+	    </div>
+      </div>
+    </div>
+    <div class="page-content bg-color-df" id="showProductDetail">
+
+     	<div class="product-detail">
+     		<img class="banner" src="./img/pdetail-banner.png">
+     		<div class="p-content">
+	     		<div class="p-cona">【车辆远程控制系统】远程自启动一键借用炫酷体验</div>
+	     		<div class="p-conb">购买产品即可成为特约分销商</div>
+	     		<div class="p-conc">￥3100</div>
+	     		<div class="p-con1">图文详情</div>
+	     		<div class="p-con2">安诺宝是一款车载智能产品，它是通过直插式OBD在不破坏原车线路的情况下使用手机APP对汽车进行多功能智能化控制管理，例如远程一</div>
+	     	</div>
+     		<img class="post" src="./img/pdetail-post.png">
+     		<!-- <div class="p-buy">立即购买</div> -->
+     	</div>
+
+    </div>
+    <!-- 产品购买申请 -->
+    <!-- <div class="login-screen" id="my-login-screen">
+      <div class="view">
+        <div class="page">
+          <div class="page-content login-screen-content">
+            <div class="login-screen-title">购买申请</div>
+            <div class="list">
+              <ul style="padding-left: 0.8rem;">
+                <li class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">推荐人编号：</div>
+                    <div class="item-input-wrap">
+                      <input id="dp1" type="text" maxlength="6" placeholder="请输入推荐人编号">
+                    </div>
+                  </div>
+                </li>
+                <li class="item-content item-input">
+                  <div class="item-inner">
+                    <div class="item-title item-label">接点人编号：</div>
+                    <div class="item-input-wrap">
+                      <input id="dp2" type="text" maxlength="6" placeholder="请输入接点人编号">
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="list">
+              <ul>
+                <li>
+                  <a href="#" class="item-link list-button login-button">提交</a>
+                </li>
+              </ul>
+              <div class="block-footer color-red fa-20">请输入正确的编号信息。<br>点击提交按钮进行申请成为分销商。</div>
+            </div>
+            <div class="list">
+              <ul>
+                <li>
+                  <a href="#" class="item-link list-button login-button">返回</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> -->
+  </div>
+</template>
+<script>
+  return {
+    data: function() {
+      return {
+        pType: 0
+      }
+    },
+    methods: {
+      goBack: function() {
+        app.loginScreen.close();
+      },
+    },
+    on: {
+      pageAfterIn:function(){
+        var type = this.$route.query.type
+        var self = this;
+        var $ = this.$;
+        self.$setState({
+          pType: type
+        })
+        getProductDetail(type);
+      }
+    }
+  }
+
+</script>

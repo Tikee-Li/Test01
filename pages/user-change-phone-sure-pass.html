@@ -1,0 +1,103 @@
+<template>
+  <div class="page no-toolbar" id="findBackPass">
+    <div class="navbar">
+      <div class="navbar-inner bg-color-white">
+        <div class="left sliding">
+          <a href="" class="link back" data-panel="left">
+            <i class="fa fa-chevron-left"></i>
+          </a>
+        </div>
+        <div class="title sliding">
+	        {{type.name}}验证密码
+	    </div>
+      </div>
+    </div>
+    <div class="page-content bg-color-white" id="userChangePhone">
+      <form>
+        <div class="list">
+          <ul>
+            <li class="item-content item-input item-input-with-value">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-pass.png">&nbsp;&nbsp;输入您的登录密码</div>
+                <div class="item-input-wrap">
+                  <input type="password" placeholder="请输入您的登录密码" id="user-pass" class="input-with-value" maxlength="11" autofocus>
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="list change-phone">
+          <ul>
+            <li><a href="#" class="item-link list-button" @click="signIn">验证</a></li>
+          </ul>
+        </div>
+      </form>
+  </div>
+</template>
+<script>
+  return {
+    data: function() {
+      return {
+        type: {id:0,name:""}
+      }
+    },
+    methods: {
+      goBack: function() {
+        // app.router.navigate('/personal/')
+        homeView.router.back()
+      },
+      signIn: function () {
+        var self =this
+        var id = localStorage.id
+        var $ = this.$;
+        var app = this.$app;
+        var data = {};
+        var router = this.$router;
+        var changePhoneBefore = $('input#user-pass').val();
+        var pass = reg.checkPassNum(changePhoneBefore)
+        if(pass){
+          app.request({
+            headers:{accessToken: accessToken},
+            url: apiUrl + '/pub/user/verify',
+            type: 'post',
+            async: true,
+            data: {id: id,password:changePhoneBefore},
+            dataType: "json",
+            success: function (response) {
+              if (response.status) {
+                if (self.type.id==1) {
+                  personalView.router.navigate('/user-change-phone/')
+                }
+                if (self.type.id==2) {
+                  personalView.router.navigate('/user-account-transfer/')
+                }
+              } else {
+                showNotificationFull('密码验证失败！请重试。');
+              }
+            }
+          })
+            
+        } else {
+          showNotificationFull('密码格式不正确！');
+        }
+       
+      }
+    },
+    on: {
+      pageAfterIn:function(){
+        var self = this
+        var type = this.$route.query.type
+        if (type==1) {
+          self.$setState({
+            type: {id:1,name:"更换手机"}
+          })
+        } else {
+          self.$setState({
+            type: {id:2,name:"账号转让"}
+          })
+        }
+      }
+    }
+  }
+</script>

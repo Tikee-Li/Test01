@@ -1,0 +1,205 @@
+<template>
+	<div class="page no-toolbar">
+		<div class="navbar">
+      <div class="navbar-inner bg-color-white">
+        <div class="left">
+          <a href="#" class="link back">
+            <i class="fa fa-chevron-left color-333"></i>
+          </a>
+        </div>
+        <div class="title">
+          银行卡
+        </div>
+      </div>
+    </div>
+    <div class="page-content bg-color-df" id="withdrawUserCount">
+
+        <div class="list inline-labels" style="margin: 0.3rem 0;">
+	        <ul>
+	          <li>
+	            <div class="item-content item-input">
+	              <div class="item-inner">
+		            <div class="item-title item-label">姓名</div>
+		            <div class="item-input-wrap">
+		              <input type="text" id="user-name" placeholder="请输入姓名"  maxlength="10" required validate data-error-message="姓名不能为空" {{disabled}}>
+		              <span class="input-clear-button"></span>
+		            </div>
+		          </div>
+	            </div>
+	          </li>
+	      	</ul>
+	    </div>
+
+      <!-- 分类 -->
+      <div class="list inline-labels" style="margin: 0.3rem 0;">
+        <ul>
+          <li>
+            <div class="item-content item-input">
+              <div class="item-inner">
+	            <div class="item-title item-label">银行卡号</div>
+	            <div class="item-input-wrap">
+	              <input type="text" id="user-card" placeholder="请输入银行卡号"  maxlength="19" required validate pattern="[0-9]*" data-error-message="银行卡号输入不正确" @input:notempty="whichBank">
+	              <span class="input-clear-button"></span>
+	            </div>
+	          </div>
+            </div>
+          </li>
+          <li>
+            <div class="item-content">
+              <div class="item-inner">
+                <div class="item-title item-label">所属银行
+                </div>
+                <div class="item-input-wrap item-card">
+                	<input type="text" id="user-card-bank" value="{{theBank}}" disabled>
+				        </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+     	<!-- 提示 -->
+     	<div class="item-withdraw-num"><text class="color-red">* 为避免提现失败，请仔细填写本人姓名，以及本人银行卡号。</text></div>
+
+	  	<div class="list">
+	      <ul class="ul-btn" style="background: none;">
+	        <li><a href="#" @click="submit" class="item-link list-button">提交</a></li>
+	      </ul>
+	    </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  return {
+    // Lifecycle Hooks
+    beforeCreate() {
+
+    },
+
+    // Component Data
+    data: function () {
+      // Must return an object
+      return {
+        btnStatus: true,
+        theBank: "",
+        disabled: ""
+      }
+    },
+    // Component Methods
+    methods: {
+      whichBank: function(){
+        var self = this
+        var $ = this.$;
+        var card = $('input#user-card').val();
+        var cardCut1 = reg.checkBankCard(card)
+        if (cardCut1) {
+          var cardCut = reg.deleteSpace(card)
+          if (cardCut.length>15) {
+            app.request({
+              headers:{accessToken: accessToken},
+              url: apiUrl + '/pub/user/getBankName',
+              type: 'post',
+              async: true,
+              data: {bankAccount:card},
+              dataType: "json",
+              success: function (response) {
+                if (response.status) {
+                  if (response.data) {
+                    self.$setState({
+                      theBank: response.data
+                    })
+                  } 
+                } 
+              },
+              error: function() {
+
+              }
+            });
+          }
+        }
+          
+      },
+      submit: function() {
+        var self = this
+        var $ = this.$;
+        var name = $('input#user-name').val();
+        var card = $('input#user-card').val();
+        var bank = $('input#user-card-bank').val();
+        var cardCut1 = reg.checkBankCard(card)
+        if (cardCut1 && name) {
+          var cardCut = reg.deleteSpace(card)
+          if (cardCut.length>15) {
+            if (self.btnStatus) {
+              self.btnStatus = false;
+              var id = localStorage.id
+              app.request({
+                headers:{accessToken: accessToken},
+                url: apiUrl + '/pub/user/update',
+                type: 'post',
+                async: true,
+                data:{id:id,name:name,bankAccount:cardCut,bankName:bank},
+                dataType: "json",
+                success: function (response) {
+                  if (response.status) {
+                    showNotificationFull('提交成功！');
+                    personalView.router.back()
+                  } else {
+                    app.dialog.alert("提交失败！请重试！")
+                  }
+                },
+                statusCode: {
+                  401: function() {
+                    unAuth();
+                  },
+                  404: function() {
+                    notFound();
+                  }
+                },
+                complete: function() {
+                  self.btnStatus = true;
+                }
+              })
+            }
+          }else{
+            showNotificationFull('银行卡号位数不对！');
+          }
+        }else {
+          app.dialog.alert('请填写格式正确的信息！');
+        }
+          
+      }
+    },
+    // Page Events
+    on: {
+      pageInit: function() {
+        var self = this
+        var $ = this.$;
+        var id = localStorage.id
+        if (id) {
+          app.request({
+            headers:{accessToken: accessToken},
+            url: apiUrl + '/pub/user/detail',
+            type: 'post',
+            async: true,
+            data: {id:id},
+            dataType: "json",
+            success: function (response) {
+              if (response.status) {
+                var name = response.data.name
+                if(name){
+                  self.$setState({
+                    disabled: "disabled"
+                  })
+                  $('input#user-name').val(response.data.name);
+                }
+              } 
+            }
+          });
+        }
+         
+      },
+
+    }
+  }
+</script>

@@ -1,0 +1,172 @@
+<template>
+	<div class="page no-toolbar">
+		<div class="navbar">
+            <div class="navbar-inner bg-color-white">
+              <div class="left">
+                <a href="#" class="link back">
+                  <i class="fa fa-chevron-left color-333"></i>
+                </a>
+              </div>
+              <div class="title">
+                积分提现
+              </div>
+            </div>
+        </div>
+    <div class="page-content bg-color-df" id="withdrawUserCount">
+       
+      <!-- 分类 -->
+      <div class="list inline-labels" style="margin: 0.3rem 0;">
+        <ul>
+          <li>
+            <div class="item-content item-link" @click=alterCard>
+              <div class="item-inner">
+                <div class="item-title item-label">银行卡
+                </div>
+                <div class="item-input-wrap item-card">
+                	{{bank}} {{bankNumber}}
+				        </div>
+                <div class="item-after">{{status}}</div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="item-content item-input">
+              <div class="item-inner">
+	            <div class="item-title item-label">提现金额</div>
+	            <div class="item-input-wrap">
+	              <input type="text" id="money" placeholder="最少提现{{miniMoney}}"  maxlength="11" required validate pattern="[0-9]*" data-error-message="金额输入不正确！">
+	              <span class="input-clear-button"></span>
+	            </div>
+	          </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="item-withdraw-num">可用积分：<text class="color-red">{{balance}}</text></div>
+      	<div class="list">
+          <ul class="ul-btn" style="background: none;">
+            <li><a @click="userWithdrawApply" class="item-link list-button">提交</a></li>
+          </ul>
+          <div class="item-withdraw-explain">提现需要1~3个工作日内到账，如遇节假日顺延，请注意查收</div>
+        </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  return {
+    
+    // Lifecycle Hooks
+    beforeCreate() {
+
+    },
+
+    // Component Data
+    data: function () {
+      // Must return an object
+      return {
+        balance: 0,
+        bank: "",
+        bankNumber:"",
+        status: "添加",
+        miniMoney: 1
+      }
+    },
+    // Component Methods
+    methods: {
+      alterCard: function(){
+        personalView.router.navigate('/add-bank-card/')
+      },
+      userWithdrawApply: function(){
+        var self = this
+        var $ = this.$;
+        var num = $('input#money').val();
+        if (self.bankNumber != "无") {
+          if ( num>=parseInt(self.miniMoney) && num<=self.balance) {
+            var float = num%1
+            if (float==0) {
+              userWithdrawApply(num);
+            } else {
+              showNotificationFull("提现金额必须为整数！");
+            }
+          } else {
+            app.dialog.alert("提现金额应大于等于"+self.miniMoney+"，且不可超过可用积分！")
+          }
+        } else {
+          app.dialog.alert("请先绑定银行卡！")
+        }
+
+      }
+    },
+    // Page Events
+    on: {
+      pageInit: function() {
+       
+      },
+      pageAfterIn: function() {
+        var self = this
+        var id = localStorage.id
+        app.request({
+          headers:{accessToken: accessToken},
+          url: apiUrl + '/comm/parameter/list',
+          type: 'post',
+          async: true,
+          // data: {id:id},
+          dataType: "json",
+          success: function (response) {
+            if (response.status) {
+              if (response.data[1].parameterValue) {
+                self.miniMoney = response.data[1].parameterValue
+                self.$setState({
+                  miniMoney: response.data[1].parameterValue
+                })
+              }
+            } else {
+              app.dialog.alert(response.message);
+            }
+          }
+        });
+        app.request({
+          headers:{accessToken: accessToken},
+          url: apiUrl + '/user/detail',
+          type: 'post',
+          async: true,
+          data: {id:id},
+          dataType: "json",
+          success: function (response) {
+            if (response.status) {
+              var newCard =""
+              var card = response.data.bankAccount
+              if (card) {
+                for (var i = card.length-1; i > card.length-5; i--) {
+                  newCard = card[i]+newCard;   
+                }
+                newCard = "******"+newCard;
+              } else {
+                newCard = "无"
+              }
+              
+              self.$setState({
+                balance: response.data.integral,
+                bank: response.data.bankName,
+                bankNumber:newCard,
+                status: "修改"
+              })
+            } else {
+              app.dialog.alert(response.message);
+            }
+          },
+          statusCode: {
+            401: function() {
+              unAuth()
+            },
+            404: function() {
+              notFound()
+            }
+          }
+        });
+      }
+
+    }
+  }
+</script>

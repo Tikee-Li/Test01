@@ -1,0 +1,106 @@
+<template>
+	<div class="page no-toolbar">
+		<div class="navbar">
+      <div class="navbar-inner sliding bg-color-white">
+        <div class="left sliding">
+          <a href="#" class="link back">
+            <i class="fa fa-chevron-left color-333"></i>
+          </a>
+        </div>
+        <div class="title">用户激活</div>
+      </div>
+    </div>
+    <div class="page-content bg-color-df" id="withdrawUserCount">
+
+      <div class="list inline-labels" style="margin: 0.3rem 0;">
+        <ul>
+          <li>
+            <div class="item-content item-input">
+              <div class="item-inner">
+	            <div class="item-title item-label">推荐人</div>
+	            <div class="item-input-wrap">
+	              <input type="text" id="user-introducer-number" placeholder="请输入推荐人编号" value="{{introducerNumber}}" maxlength="19" />
+	              <span class="input-clear-button"></span>
+	            </div>
+	          </div>
+            </div>
+          </li>
+          <li>
+            <div class="item-content">
+              <div class="item-inner">
+                <div class="item-title item-label">接点人</div>
+                <div class="item-input-wrap item-card">
+                	<input type="text" id="user-parent-number" placeholder="请输入接点人编号" value="{{parentNumber}}" maxlength="19">
+	              <span class="input-clear-button"></span>
+				</div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      	<div class="list">
+	      <ul class="ul-btn" style="background: none;">
+	        <li><a href="#" @click="submit" class="item-link list-button">提交</a></li>
+	      </ul>
+	    </div>
+
+    </div>
+  </div>
+</template>
+
+<script>
+  return {
+    data: function(){
+    	return {
+    		introducerNumber: "",
+			parentNumber: "",
+			disabled: "disabled"
+    	}
+    },
+    methods:  {
+    	submit: function() {
+    		var self = this;
+    		var $ = this.$;
+    		var introNumber = $('input#user-introducer-number').val();
+    		var parentNumber = $('input#user-parent-number').val();
+    		var data = {
+                creator: localStorage.id,
+                productId: 1,
+                amount: 1,
+                introducerNumber: introNumber,
+                parentNumber: parentNumber,
+            };
+            if (introNumber && parentNumber) {
+            	if (reg.checkFirstLetter(introNumber) && reg.checkFirstLetter(parentNumber)) {
+		    		app.request({
+					    headers:{accessToken: accessToken},
+					    url: apiUrl + '/order/add/prefecture',
+					    type: 'post',
+					    async: true,
+					    data: data,
+					    dataType: "json",
+					    success: function (response) {
+					      	if (response.status) {
+						        showNotificationFull("提交成功！");
+						        personalView.router.back();
+					      	} else {
+						        app.dialog.alert(response.message);
+						    }
+					    },
+					    error: function() {
+					      app.dialog.alert("提交失败，请重新！");
+					    }
+					});
+            	} else {
+            		app.dialog.alert("请检查输入编号格式！");
+            	}
+            } else {
+            	app.dialog.alert("请输入完整信息！");
+            }
+    	}
+    },
+    on: {
+    }
+  }
+</script>

@@ -1,0 +1,73 @@
+<template>
+  <div class="page no-toolbar" id="attractInvest">
+    <div class="navbar">
+      <div class="navbar-inner" style="background-color: #F18E62">
+        <div class="left">
+          <a href="#" class="link back color-white" data-panel="left">
+            <i class="fa fa-chevron-left"></i>
+          </a>
+        </div>
+        <div class="title color-white">
+          招商加盟
+        </div>
+      </div>
+    </div>
+    <div class="page-content bg-color-dfred">
+      <div class="attract-body">
+        <!-- <img class="bg-img" src="./img/zsbg.png"> -->
+        <img class="bg-join" src="./img/zsjoin.png">
+        <div class="join-condition">
+          一：自2019年1月1日起，凡投资3100元购买公司产品一份，即可成为公司的特约分销商，享受每份分销商品交易额的10%提成（310元），和每天300-2000元不等的工资待遇。<br>
+
+          二：分销占位，充值300元成为“试用分销商”，可享受每份分销商品10%提成。
+        </div>
+        <img class="bg-dis" src="./img/zsdis.png">
+        <div class="dis-condition">成为公司特约分销商后，帮助公司销售产品，获取丰厚的分销提成和工资福利。</div>
+        <img class="bg-table" src="./img/zstable.png">
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  return {
+    methods: {
+      goBack: function() {
+        homeView.router.back()
+      },
+      signIn: function () {
+        var $ = this.$;
+        var app = this.$app;
+        var data = {};
+        var router = this.$router;
+        var username = $('input#demo-username-2').val();
+        var password = $('input#demo-password-2').val();
+        if (username != "") {
+          if (password != "") {
+            if (username) {
+              data = {
+                loginName: username,
+                password: password
+              };
+              login(data);
+              homeView.router.back('')
+            } else {
+              app.dialog.alert('用户名或密码不正确');
+            }
+          } else {
+            app.dialog.alert('密码不能为空');
+          }
+        } else {
+          app.dialog.alert('用户名不能为空');
+        }
+        // app.dialog.alert('Username: ' + username + '<br>Password: ' + password, function () {
+        //   app.loginScreen.close();
+        //   router.back();
+        // })
+      }
+    },
+    on: {
+      pageAfterIn:function(){
+      }
+    }
+  }
+</script>

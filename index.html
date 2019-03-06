@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#2196f3">
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap:">
+  <title>驰纵科技</title>
+  <link rel="stylesheet" href="css/framework7.css">
+  <link rel="stylesheet" href="css/font-awesome.css">
+  <link rel="stylesheet" href="css/appsys.css">
+  <link rel="stylesheet/less" type="text/css" href="css/styles.less"/>
+  <link rel="stylesheet/less" type="text/css" href="css/app.less"/>
+  <script src="js/less.min.js"></script>
+  <link rel="apple-touch-icon" href="img/f7-icon-square.png">
+  <link rel="icon" href="img/f7-icon.png">
+</head>
+<body>
+  <div id="app">
+    <div class="statusbar"></div>
+    <div class="views tabs ios-edges">
+      <!-- Tabbar for switching views-tabs -->
+      <div class="toolbar tabbar-labels toolbar-bottom-md bg-color-white" id="appTabbar">
+        <div class="toolbar-inner">
+          <a href="#view-home" class="tab-home tab-link tab-link-active">
+            <i class="fa fa-home"></i>
+            <span class="tabbar-label">首页</span>
+          </a>
+          <a href="#view-community" class="tab-community tab-link">
+            <i class="fa fa-comments-o"></i>
+            <span class="tabbar-label">社区</span>
+          </a>
+          <a href="#view-shop" class="tab-shop tab-link">
+            <i class="fa fa-shopping-bag"></i>
+            <span class="tabbar-label">商城</span>
+          </a>
+          <a href="#view-personal" class="tab-personal tab-link">
+            <i class="fa fa-user-o"></i>
+            <span class="tabbar-label">我的</span>
+          </a>
+        </div>
+      </div>
+      <div id="view-home" class="view tab view-main tab-active" data-url="/"></div>
+      <div id="view-community" class="view tab"></div>
+      <div id="view-shop" class="view tab"></div>
+      <div id="view-personal" class="view tab"></div>
+    </div>  
+  </div>
+
+  <!-- 首页navbar模板 -->
+  <script type="text/template7" id="homePageUserHeadTemplate">
+    <div class="left">
+      <a href="#" class="link" onclick="goToLogin()">
+        <img src="{{head}}" width="34" height="34" style="border-radius: 50%;border: 1px solid #ccc;">
+        {{#if Status}}
+        <span class="login-status-show">请登录</span>
+        {{/if}}
+      </a>
+    </div>
+    <div class="title sliding">
+      <img src="img/app-logo.png" width="90" height="30">
+    </div>
+    <div class="right">
+      {{#if Status}}
+      <a href="/signin/" class="link" style="color: #333;">注册</a>
+      {{/if}}
+    </div>
+  </script>
+  <!-- 首页轮播模板 -->
+  <script type="text/template7" id="showIndexPicTemplate"> 
+    <!-- 首页轮播图 -->
+    <div class="swiper-container">
+      <div class="swiper-wrapper">
+        {{#each data}}
+        <div class="swiper-slide"><img class="swiper-slide" src="{{img}}"></div>
+        {{/each}}
+      </div>
+      <!-- Add Pagination -->
+      <div class="swiper-pagination"></div>
+      <!-- Add Arrows -->
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+  </script>
+  <!-- 首页商品模板 -->
+  <script type="text/template7" id="indexProductTemplate">
+    <div class="block-recom">热门推荐</div>
+    <div class="row no-gap">
+    {{#js_if "this.data.length!=0"}}
+      {{#each data}}
+      <div class="col-50">
+        <div class="index-serve" onclick="indexBuy({{id}})">
+          <img src="{{image}}">
+          <button class="button button-raised button-fill button-round">立即购买</button>
+          <div class="block">
+            {{name}}
+          </div>
+          <p>￥{{money}}</p>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{/js_if}}
+    {{#js_if "this.data.length==0"}}
+    <div class="t-a-center">
+      <img src="./img/no-product.png" width="300">
+    </div>
+    {{/js_if}}
+  </script>
+  <!-- 首页商品详情模板 -->
+  <script type="text/template7" id="showProductDetailTemplate">
+    <div class="product-detail">
+      
+      <!-- 详情轮播图 -->
+      <div class="swiper-container">
+        <div class="swiper-pagination" ></div>
+        <div class="swiper-wrapper">
+          {{#each banner}}
+          <div class="swiper-slide"><img class="swiper-slide" src="{{filePath}}"></div>
+          {{/each}}
+        </div>
+      </div>
+
+      <div class="p-content">
+        <div class="p-cona">{{name}}</div>
+        <div class="p-conb">
+          购买产品即可成为{{js "this.type==1?'特约':'试用'"}}分销商
+        </div>
+        <div class="p-conc">￥{{money}}</div>
+        <div class="p-con1">图文详情</div>
+        <div class="p-con2">{{introduction}}</div>
+      </div>
+      <img class="post" src="{{detailImg}}">
+      <!-- <a class="login-screen-open" data-login-screen=".login-screen"><div class="p-buy">立即购买</div></a> -->
+    </div>
+  </script>
+  <!-- 我的推荐模板 -->
+  <script type="text/template7" id="myRecommendTemplate">
+        {{#each list}}
+        <div class="list">
+          <ul>
+              <li>
+                <div class="row re-title">
+                  <div class="col-50 re-left">{{createTimeStr}}</div>
+                  <div class="col-50 re-right">{{js "@index+1"}}位</div>
+                </div>
+                <div class="row re-content">
+                  <div class="col-50 re-left">编号</div>
+                  <div class="col-50 re-right">{{applicantNumber}}</div>
+                </div>
+                <div class="row re-content">
+                  <div class="col-50 re-left">手机号</div>
+                  <div class="col-50 re-right">{{applicantMobile}}</div>
+                </div>
+                <div class="row re-content">
+                  <div class="col-50 re-left">上级编号</div>
+                  <div class="col-50 re-right">{{parentNumber}}</div>
+                </div>
+              </li>
+          </ul>
+        </div>
+        {{/each}}
+  </script>
+  <!-- 我的提现记录模板 1-待办理；2-提现成功；3-提现失败 -->
+  <script type="text/template7" id="withdrawAccountTemplate">
+    <!-- 分类 -->
+    <div class="list">
+      <ul>
+        {{#each list}}
+        <li>
+          <div class="row wpadding">
+            <div class="col-33 wdate">{{createTimeStr}}</div>
+            <div class="col-33 wnum">-{{money}}积分</div>
+            <div class="col-33 wstat {{js "this.status==3 ?'color-red':''"}}">
+              {{js "this.status==1 ?'待处理':''"}}
+              {{js "this.status==2 ?'提现成功':''"}}
+              {{js "this.status==3 ?'提现失败':''"}}
+            </div>
+          </div>
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+  </script>
+  <!-- 我的 页面用户信息显示 -->
+  <script type="text/template7" id="userPersonalInfoTemplate">
+    <div class="list">
+      <ul class="user-header-ul">
+        <li class="user-header-li">
+          <div class="item-content item-link">
+            <a href="/user-info/" class="item-media"><img src="{{#if headImg}}{{headImg}}{{else}}./img/index-head.png{{/if}}" width="60" style="border-radius:50%;border:1px solid white;background: #fff;"/></a>
+            <div class="item-inner">
+              <div class="item-title">
+                {{number}}{{#if name}}({{name}}){{/if}}
+                <div class="item-header">
+                  <div class="user-ranke">
+                    {{#if activate_status}}
+                      {{#js_if "this.level==0"}}已激活{{/js_if}}
+                      {{#js_if "this.level>0"}}<i class="fa fa-vimeo">{{level}}</i>{{/js_if}}
+                    {{else}}未激活{{/if}}
+                  </div>
+                </div>
+              </div>
+              {{#if }}
+              <div class="item-after">
+                {{#if open_third_market}}
+                <div class="persoanl-btn-s">已开通第三市场</div>
+                {{else}}
+                  {{#js_if "this.level>3"}}
+                    <div class="persoanl-btn" onclick="openThird()">开通第三市场</div>
+                  {{/js_if}}
+                {{/if}}
+              </div>  
+
+            </div>
+          </div>
+        </li>
+      </ul> 
+    </div>
+  </script>
+  <!-- 我的 个人资料页面模板 -->
+  <script type="text/template7" id="userInfoShowTemplate">
+    <!-- 用户信息 -->
+    <div class="user-header">
+      <div class="userinfo-head">
+        <form id="upfile" enctype="multipart/form-data">
+          <img src="{{headImg}}" width="70px" height="70px" style="border-radius:50%;border:1px solid white;background: #fff;">
+          <input type="file" name="files" class="upload-file" accept="image/*" onchange="changeHeadImg(this)">
+        </form>
+      </div>
+      <div class="userinfo-cp">
+        <img src="./img/icon@usercamera.png">
+      </div>
+      <div class="userinfo-num">{{number}}{{#if name}}({{name}}){{/if}}</div>
+      <div class="userinfo-stat">
+        <div class="border-status">
+          {{#if activateStatus}}
+            {{#js_if "this.level==0"}}已激活{{/js_if}}
+            {{#js_if "this.level>0"}}<i class="fa fa-vimeo">{{level}}</i>{{/js_if}}
+          {{else}}未激活{{/if}}
+        </div>
+      </div>
+    </div>
+      
+    <!-- 分类 -->
+    <div class="list">
+      <ul>
+        <li>
+          <a href="/user-change-phone-before/?type=1" class="item-content item-link">
+            <div class="item-inner">
+              <div class="item-title">手机号
+              </div>
+              <div class="item-after">{{mobile}}</div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="/user-change-phone-before/?type=2" class="item-content item-link">
+            <div class="item-inner">
+              <div class="item-title">账号转让
+              </div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="/user-change-pass/" class="item-content item-link">
+            <div class="item-inner">
+              <div class="item-title">修改密码
+              </div>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </script>
+  <!-- 我的 积分明细模板 -->
+  <script type="text/template7" id="countDetailTemplate">
+    <!-- 分类 -->
+    <div class="list" style="padding-top: 40px;">
+      <ul>
+        {{#each list}}
+        <li>
+          <div class="row wpadding">
+            <div class="col-33 wdate">{{createTimeStr}}</div>
+            <div class="col-33 wnum">
+              <span class="{{#if type}}{{else}}color-red{{/if}}">
+              {{js "this.type?'':'-'"}}
+              {{js "this.type?'+':''"}}</span>
+              {{money}}积分
+            </div>
+          </div>
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+  </script>
+  <!-- 我的 团队 用户个人模板 -->
+  <script type="text/template7" id="userTeamSelfContentTemplate">
+    <!-- 用户信息 -->
+    <div class="user-header">
+      <div class="userinfo-head"><img src="{{headImg}}" width="70px" height="70px" style="border-radius: 50%;border: 1px solid #FFF; background-color: #FFF;"></div>
+      <div class="userinfo-num">{{number}}{{#if name}}({{name}}){{/if}}</div>
+      <div class="userinfo-stat">
+        <div class="border-status">
+          {{#if activate_status}}
+            {{#js_if "this.level==0"}}已激活{{/js_if}}
+            {{#js_if "this.level>0"}}<i class="fa fa-vimeo">{{level}}</i>{{/js_if}}
+          {{else}}未激活{{/if}}
+        </div>
+        <div class="border-status">
+          团队{{people_num}}人
+        </div>
+      </div>
+    </div>    
+  </script>
+  <!-- 我的 团队 团队模板 -->
+  <script type="text/template7" id="userTeamContentTemplate">
+    <!-- .团队列表 -->
+    {{#each data}}
+    <div class="team-second">
+      <div class="row no-gap bg-color-white">
+        <div class="col-33">
+
+          <div class="user-t-header">
+            <div class="userinfo-head" onclick="userGetTeamMember({{USER_ID}})"><img src="{{HEAD_IMG_PATH}}" width="70px" height="70px"></div>
+            <div class="userinfo-num color-fff">
+              {{USER_NUMBER}}{{#if USER_NAME}}({{USER_NAME}}){{/if}}
+            </div>
+            <div class="userinfo-stat">
+              <div class="border-status color-fff">
+                {{#js_if "this.USER_ACTIVATE_STATUS==0"}}未激活{{/js_if}}
+                {{#js_if "this.USER_ACTIVATE_STATUS==1"}}
+                  {{#js_if "this.USER_LEVEL==0"}}已激活{{/js_if}}
+                  {{#js_if "this.USER_LEVEL>0"}}<i class="fa fa-vimeo">{{USER_LEVEL}}</i>{{/js_if}}
+                {{/js_if}}
+              </div>
+              <div class="border-status color-fff">
+                团队{{PEOPLE_NUM}}人
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="col-66 bg-color-white">
+          {{#each CHILDREN}}    
+          <div class="team-member">
+            <div class="member-id" onclick="userGetTeamMember({{USER_ID}})">
+              {{USER_NUMBER}}{{#if USER_NAME}}({{USER_NAME}}){{/if}}
+            </div>
+            <div class="member-v">
+              {{#js_if "this.USER_ACTIVATE_STATUS==0"}}未激活{{/js_if}}
+              {{#js_if "this.USER_ACTIVATE_STATUS==1"}}
+                {{#js_if "this.USER_LEVEL==0"}}已激活{{/js_if}}
+                {{#js_if "this.USER_LEVEL>0"}}<i class="fa fa-vimeo">{{USER_LEVEL}}</i>{{/js_if}}
+              {{/js_if}}
+            </div>
+            <div class="member-number">团队{{PEOPLE_NUM}}人</div>
+          </div>
+          {{/each}}
+        </div>    
+      </div>  
+    </div> 
+    {{/each}}
+    <!-- #团队列表 -->
+  </script>
+  <script src="js/framework7.js"></script>
+  <script src="js/routes.js"></script>
+  <script src="js/mui.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/rem.js"></script>
+  <script src="js/xss.js"></script>
+</body>
+</html>

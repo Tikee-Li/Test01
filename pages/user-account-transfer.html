@@ -1,0 +1,175 @@
+<template>
+  <div class="page no-toolbar" id="findBackPass">
+    <div class="navbar">
+      <div class="navbar-inner bg-color-white">
+        <div class="left sliding">
+          <a href="" class="link back" data-panel="left">
+            <i class="fa fa-chevron-left"></i>
+          </a>
+        </div>
+        <div class="title sliding">
+	        账号转让
+	    </div>
+      </div>
+    </div>
+    <div class="page-content bg-color-white" id="userChangePhone">
+      <form>
+        <div class="list">
+          <ul>
+            <li class="item-content item-input item-input-with-value">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/icon_acctransfer@2x.png">&nbsp;&nbsp;对方用户姓名</div>
+                <div class="item-input-wrap">
+                  <input type="text" placeholder="请输入转入账户用户姓名" id="user-t-name" class="input-with-value" maxlength="9" required validate data-error-message="姓名不能为空">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input item-input-with-value">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-phone.png">&nbsp;&nbsp;对方手机号</div>
+                <div class="item-input-wrap">
+                  <input type="text" placeholder="请输入手机号" id="user-t-phone" class="input-with-value" maxlength="11" required validate pattern="[0-9]*" data-error-message="手机号码不正确">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input">
+              <div class="item-inner">
+                <div class="item-title-row item-label">
+                  <div class="item-title">
+                    <img src="img/user-code.png">&nbsp;&nbsp;验证码
+                  </div>
+                  <div class="item-after button button-outline button-round button-raised {{buttonStyle}}" @click="getVerCode">{{buttonText}}</div>
+                </div>
+                <div class="item-input-wrap">
+                  <input type="text" placeholder="请输入收到的验证码" id="signin-code" class="" maxlength="6" required validate data-error-message="验证码输入不正确">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="list change-phone">
+          <ul>
+            <li><a href="#" class="item-link list-button" @click="signIn">提交</a></li>
+          </ul>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+<script>
+  return {
+    data: function() {
+      return {
+        btnStatus: true,
+        countTime: 180,
+        buttonText: "获取验证码",
+        buttonStyle: ""
+      }
+    },
+    methods: {
+      goBack: function() {
+        // app.router.navigate('/personal/')
+        homeView.router.back()
+      },
+      getVerCode: function() {
+        var self =this 
+        var $ = this.$;
+        var signinPhone = $('input#user-t-phone').val();
+        if (reg.checkPhone(signinPhone)) {
+          if (self.countTime==180) {
+            getVerifyCode(signinPhone);
+            if (self.countTime>0) {
+              timer = setInterval(function(){
+                var time=self.countTime-1;
+                var Text= time+"秒后重新发送" 
+                self.$setState({
+                  countTime: time,
+                  buttonText: Text,
+                  buttonStyle: "button-style"
+                })
+                if(time<0){     //判断,当时间值小于等于0的时候 
+                  clearInterval(timer); //清除定时器
+                  self.$setState({
+                      countTime: 180,
+                      buttonText: "重新发送",
+                      buttonStyle: ""
+                  })
+                }
+              },1000)
+            }
+          }
+        } else {
+          app.dialog.alert("请检查手机号是否输入正确。")
+        }
+          
+      },
+      signIn: function () {
+        var self = this
+        var $ = this.$;
+        var app = this.$app;
+        var router = this.$router;
+        var tName = $('input#user-t-name').val();
+        var tPhone = $('input#user-t-phone').val();
+        var tCode = $('input#signin-code').val();
+        var data = {
+          objectName: tName,
+          objectMobile: tPhone,
+          smsCode: tCode
+        };
+        var regName = reg.deleteSpace(tName)
+        var regPhone = reg.deleteSpace(tPhone)
+        if (tName && tPhone && tCode) {
+          // 判断手机号码
+          var checkedPhone = reg.checkPhone(tPhone);
+          if (checkedPhone) {
+            if (self.btnStatus) {
+              self.btnStatus = false;
+              app.request({
+                headers:{accessToken: accessToken},
+                url: apiUrl + '/change/apply',
+                type: 'post',
+                async: true,
+                data: data,
+                dataType: "json",
+                success: function (response) {
+                  if (response.status) {
+                    app.dialog.alert('提交成功！请提醒对方注意查收短信。');
+                    personalView.router.navigate('/re-personal/')
+                  } else {
+                    showNotificationFull(response.message);
+                  }
+                },
+                statusCode: {
+                  401: function() {
+                    unAuth();
+                  },
+                  404: function() {
+                    notFound();
+                  }
+                },
+                complete: function() {
+                  self.btnStatus = true;
+                }
+              });
+            }
+          } else {
+            app.dialog.alert("手机号码不正确！")
+          }
+        } else {
+          app.dialog.alert('请输入完整信息！');
+        }
+      }
+    },
+    on: {
+      pageAfterIn:function(){
+        // var token = localStorage.getItem("token");
+        // if (token) {
+        //   app.dialog.alert("您已经登录，不用再次登录！")
+        // }
+      }
+    }
+  }
+</script>

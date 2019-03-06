@@ -1,0 +1,99 @@
+<template>
+    <div class="page">
+      <div class="navbar">
+        <div class="navbar-inner bg-color-white" id="homePageUserHead">
+          <div class="left">
+            <a href="#" class="link" onclick="goToLogin()">
+              <img src="{{headimg}}" width="34" height="34" style="border-radius: 50%;border: 1px solid #ccc;">
+              <span class="login-status-show">请登录</span>
+            </a>
+          </div>
+          <div class="title sliding">
+            <img src="img/app-logo.png" width="90" height="30">
+          </div>
+          <div class="right">
+            <a href="/signin/" class="link" style="color: #333;">注册</a>
+          </div>
+        </div>
+      </div>
+      <div class="page-content bg-color-df ptr-content" @ptr:refresh="pullToRefresh">
+        <div class="ptr-preloader">
+          <div class="preloader"></div>
+          <div class="ptr-arrow"></div>
+        </div>
+        <div id="showIndexPic">  
+          <!-- 首页轮播图 -->
+          <div data-pagination='{"el": ".swiper-pagination"}' class="swiper-container swiper-init demo-swiper-multiple">
+            <div class="swiper-pagination" ></div>
+            <div class="swiper-wrapper">
+              <div class="swiper-slide"><img src="img/beach.jpg"></div>
+              <div class="swiper-slide"><img src="img/beach.jpg"></div>
+              <div class="swiper-slide"><img src="img/beach.jpg"></div>
+            </div>
+          </div>
+        </div>
+        <!-- 四个分类 -->
+        <div class="block bg-color-white">
+          <div class="row no-gap">
+            <div class="col">
+              <a href="/attract-inv/">
+                <div class="index-category">
+                  <img src="img/index-join.png">
+                  招商加盟
+                </div>
+              </a>
+            </div>
+            <div class="col">
+              <a href="/index-recomm-buy/">
+                <div class="index-category">
+                  <img src="img/index-recommend.png">
+                  推荐购买
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+        <!-- 两个专区 -->
+        <div class="block bg-color-white" id="indexProductShow">
+         
+        </div>
+
+      </div>
+    </div>
+</template>
+<script>
+  return {
+    data: function() {
+      headimg:"./img/index-head.png"
+    },
+    methods: {
+      pullToRefresh: function(){
+        setTimeout(function () {
+          homeView.router.refreshPage();
+        }, 500);
+      }
+    },
+  	on: {
+  		pageInit: function() {
+        var headimg = localStorage.headimg
+        var self = this;
+        if(headimg) {
+          self.$setState({
+            headimg: headimg,
+          })
+        } else {
+          self.$setState({
+            headimg: "./img/index-head.png",
+          })
+        }
+        indexInit(); 
+        getIndexProduct();
+        getIndexPic()
+        getUserInfoPersonal();
+      },
+      pageAfterIn: function() {
+      
+      }
+  	}
+  }
+</script>

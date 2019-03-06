@@ -1,0 +1,82 @@
+<template>
+  <div class="page no-toolbar" id="findBackPass">
+    <div class="navbar">
+      <div class="navbar-inner bg-color-white">
+        <div class="left sliding">
+          <a href="" class="link back" data-panel="left">
+            <i class="fa fa-chevron-left"></i>
+          </a>
+        </div>
+        <div class="title sliding">
+	        更改手机号
+	    </div>
+      </div>
+    </div>
+    <div class="page-content bg-color-white" id="userChangePhone">
+      <form>
+        <div class="list">
+          <ul>
+            <li class="item-content item-input item-input-with-value">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-phone.png">&nbsp;&nbsp;输入新手机号</div>
+                <div class="item-input-wrap">
+                  <input type="text" placeholder="请输入手机号" id="user-phone" class="input-with-value" maxlength="11" required validate pattern="[0-9]*" data-error-message="手机号码不正确">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="list change-phone">
+          <ul>
+            <li><a href="#" class="item-link list-button" @click="signIn">完成</a></li>
+          </ul>
+        </div>
+      </form>
+      <div class="item-withdraw-explain">一个手机号只能作为一个账号的登录名</div>
+    </div>
+  </div>
+</template>
+<script>
+  return {
+    data: function() {
+      return {
+        btnStatus: true,
+      }
+    },
+    methods: {
+      goBack: function() {
+        // app.router.navigate('/personal/')
+        homeView.router.back()
+      },
+      signIn: function () {
+        var self = this
+        var $ = this.$;
+        var app = this.$app;
+        var data = {};
+        var router = this.$router;
+        var changePhone = $('input#user-phone').val();
+        if (changePhone) {
+          if (reg.checkPhone(changePhone)) {
+            if (self.btnStatus) {
+              self.btnStatus = false;
+              userChangePhone(changePhone);
+            }
+              self.btnStatus = true;
+          } else {
+            app.dialog.alert("手机号码输入格式不正确！");
+          }
+        } else {
+          app.dialog.alert("请输入手机号！");
+        }
+        // #
+        
+      }
+    },
+    on: {
+      pageAfterIn:function(){
+        
+      }
+    }
+  }
+</script>

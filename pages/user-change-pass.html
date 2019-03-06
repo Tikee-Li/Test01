@@ -1,0 +1,126 @@
+<template>
+    <div class="page no-toolbar" id="findBackPass">
+    <div class="navbar">
+      <div class="navbar-inner bg-color-white">
+        <div class="left sliding">
+          <a href="" class="link back" data-panel="left">
+            <i class="fa fa-chevron-left"></i>
+          </a>
+        </div>
+        <div class="title sliding">
+          修改密码
+      </div>
+      </div>
+    </div>
+    <div class="page-content bg-color-white" id="userChangePhone">
+      <form>
+        <div class="list">
+          <ul>
+            <li class="item-content item-input item-input-with-value">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-pass.png">&nbsp;&nbsp;旧密码</div>
+                <div class="item-input-wrap">
+                  <input type="password" placeholder="请输入旧密码" id="old-pass" class="input-with-value" maxlength="11" autofocus>
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input item-input-with-value">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-pass.png">&nbsp;&nbsp;新密码（6-12位数字与字母组合）</div>
+                <div class="item-input-wrap">
+                  <input type="password" placeholder="请输入新密码" id="new-pass-1" class="input-with-value" maxlength="11">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+            <li class="item-content item-input item-input-with-value">
+              <div class="item-inner">
+                <div class="item-title item-label"><img src="img/user-pass.png">&nbsp;&nbsp;再次输入新密码</div>
+                <div class="item-input-wrap">
+                  <input type="password" placeholder="请再次输入新密码" id="new-pass-2" class="input-with-value" maxlength="12">
+                  <span class="input-clear-button"></span>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="list change-phone">
+          <ul>
+            <li><a href="#" class="item-link list-button" @click="signIn">修改</a></li>
+          </ul>
+        </div>
+      </form>
+  </div>
+</template>
+<script>
+  return {
+    data: function() {
+      return {
+        btnStatus: true,
+      }
+    },
+    methods: {
+      goBack: function() {
+        // app.router.navigate('/personal/')
+        homeView.router.back()
+      },
+      signIn: function () {
+        var self = this;
+        var $ = this.$;
+        var app = this.$app;
+        var data = {};
+        var router = this.$router;
+        var cPass = $('input#old-pass').val();
+        var cNpass1 = $('input#new-pass-1').val();
+        var cNpass2 = $('input#new-pass-2').val();
+        if (cPass!=cNpass1 && cPass!=cNpass2 ) {
+          if (cNpass1==cNpass2) {
+            if (reg.checkPassNum(cNpass1)) {
+              data = {
+                oldPassword: cPass,
+                newPassword: cNpass1,
+              };
+              if (self.btnStatus) {
+                app.request({
+                  headers: {accessToken: accessToken},
+                  url: apiUrl + '/account/changePassword',
+                  type: 'post',
+                  async: true,
+                  data: data,
+                  dataType: "json",
+                  success: function (response) {
+                    if (response.status) {
+                      app.dialog.alert("密码修改成功！请重新登录。");
+                      clearLoginStatus();
+                      setTimeout(function(){
+                        window.location.href = "./index.html"
+                      },2000)
+                      getUserInfoPersonal();
+                    } else {
+                      app.dialog.alert("密码修改失败！请重试。");
+                    }
+                  },
+                  complete: function() {
+                    self.btnStatus = true;
+                  },
+                });
+              }
+            } else {
+              app.dialog.alert("密码格式不正确！");
+            }
+          } else {
+            app.dialog.alert("两次输入的新密码不一致!");
+          }
+        } else {
+          app.dialog.alert("新密码与原始密码不能相同！")
+        }
+      }
+    },
+    on: {
+      pageAfterIn:function(){
+        
+      },
+    }
+  }
+</script>

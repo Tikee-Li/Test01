@@ -1,0 +1,160 @@
+<template>
+	<div class="page no-toolbar">
+		<div class="navbar">
+            <div class="navbar-inner bg-color-white">
+              <div class="left">
+                <a href="#" class="link back">
+                  <i class="fa fa-chevron-left color-333"></i>
+                </a>
+              </div>
+              <div class="title">
+                提现记录
+              </div>
+            </div>
+        </div>
+    <div class="page-content bg-color-df infinite-scroll-content" @infinite="loadMore" id="withdrawUserCount">
+
+      	<!-- 分类 -->
+      	<div class="list">
+        	<ul>
+              {{#each lists}}
+          		<li>
+          			<div class="row wpadding">
+                  <div class="col-33 wdate">{{createTimeStr}}</div>
+                  <div class="col-33 wnum">-{{money}}积分</div>
+                  <div class="col-33 wstat {{js "this.status==3 ?'color-red':''"}}">
+                    {{js "this.status==1 ?'待处理':''"}}
+                    {{js "this.status==2 ?'提现成功':''"}}
+                    {{js "this.status==3 ?'提现失败':''"}}
+                  </div>
+                </div>
+          		</li>
+              {{/each}}
+        	</ul>
+      	</div>
+        {{#if hasMoreItems}}
+        <div class="preloader infinite-scroll-preloader"></div>
+        {{/if}}
+    </div>
+  </div>
+</template>
+
+<script>
+  return {
+    // Lifecycle Hooks
+    beforeCreate() {
+
+    },
+    // Component Data
+    data: function () {
+      return {
+        allowInfinite: true,
+        hasMoreItems: true,
+        page: 1,
+        lastPage: false,
+        lists: []
+      }
+    },
+    // Component Methods
+    methods: {
+      loadMore: function () {
+        var self = this;
+        var $ = self.$$;
+
+        if (!self.allowInfinite){
+          self.$setState({
+            hasMoreItems: false,
+          });
+          return;
+        }else{
+          self.$setState({
+            hasMoreItems: true,
+          });
+          self.allowInfinite = false;
+        }
+
+        setTimeout(function () {
+          self.page+=1;
+
+          if (!self.lastPage) {
+             // 提现记录
+            app.request({
+              headers:{accessToken: accessToken},
+              url: apiUrl + '/extract/list/myself',
+              type: 'post',
+              async: true,
+              data: {pageNum: self.page},
+              dataType: "json",
+              success: function (response) {
+                if (response.status) {
+                  
+                  for (var i = 0; i < response.data.list.length; i++) {
+                    self.lists.push(response.data.list[i]);
+                  }
+                  self.$setState({
+                    lists: self.lists,
+                  })
+                 
+                  if (response.data.list.length < 10) {
+                    self.allowInfinite = false;
+                    self.lastPage = true
+                    showNotificationFull("所有记录已加载")
+                    return ;
+                  }
+                  
+                } else {
+                  app.dialog.alert(response.message);
+                }
+              }
+            });
+            self.allowInfinite = true;
+          }
+          self.$setState({
+            hasMoreItems: false,
+          });
+
+        }, 1000);
+      
+      }
+    },
+    // Page Events
+    on: {
+      pageInit: function() {
+        var self = this;
+        app.request({
+          headers:{accessToken: accessToken},
+          url: apiUrl + '/extract/list/myself',
+          type: 'post',
+          async: true,
+          data: {pageNum: self.page},
+          dataType: "json",
+          success: function (response) {
+            if (response.status) {
+              self.$setState({
+                lists: response.data.list,
+                hasMoreItems: false,
+              })
+              if (response.data.list.length<10) {
+                self.allowInfinite = false;
+                self.hasMoreItems = false
+                self.lastPage = true
+                showNotificationFull("所有记录已加载")
+              }
+            } else {
+              app.dialog.alert(response.message);
+            }
+          },
+          statusCode: {
+            401: function() {
+              unAuth()
+            },
+            404: function() {
+              notFound()
+            }
+          }
+        });
+      },
+
+    }
+  }
+</script>

@@ -1,0 +1,92 @@
+<template>
+	<div class="page no-toolbar">
+		<div class="navbar">
+            <div class="navbar-inner" style="background-color: #F18D62;">
+              <div class="left">
+                <a href="#" class="link back color-white">
+                  <i class="fa fa-chevron-left"></i>
+                </a>
+              </div>
+              <div class="title color-white">
+                我的团队
+              </div>
+              <div class="right">
+                <a href="#" @click="refreshPage" class="link color-white">
+                  <i class="fa fa-refresh"></i>
+                </a>
+              </div>
+            </div>
+        </div>
+	    <div class="page-content bg-color-df">
+	    	<div id="userTeamSelfContent">
+		    	<!-- 用户信息 -->
+		      	<div class="user-header">
+			        <div class="userinfo-head"><img src="./img/index-head.png" width="70px" height="70px"></div>
+			        <div class="userinfo-num">ABC2348</div>
+			        <div class="userinfo-stat">
+			          <div class="border-status">
+			            已激活
+			          </div>
+			          <div class="border-status">
+			            团队8人
+			          </div>
+			        </div>
+		      	</div>
+	    	</div>
+	      	
+	      	<div id="userTeamContent">
+		      	<!-- .团队列表 -->
+		      	<div class="team-second">
+			      	<div class="row no-gap bg-color-white">
+			      		<div class="col-33">
+
+			      			<div class="user-t-header">
+						        <div class="userinfo-head"><img src="./img/index-head.png" width="70px" height="70px"></div>
+						        <div class="userinfo-num color-fff">ABC2348</div>
+						        <div class="userinfo-stat">
+						          <div class="border-status color-fff">
+						            已激活
+						          </div>
+						          <div class="border-status color-fff">
+						            团队8人
+						          </div>
+						        </div>
+						    </div>
+
+			      		</div>		
+			      		<div class="col-66 bg-color-white">
+			      			<div class="team-member">
+			      				<div class="member-id">ABC238 (name）</div>
+			      				<div class="member-v">v1</div>
+			      				<div class="member-number">团队4人</div>
+			      			</div>
+			      		</div>		
+			      	</div>	
+		      	</div> 
+		      	<!-- #团队列表 -->
+	      	</div>
+	      	
+
+	    </div>
+  	</div>
+</template>
+
+<script>
+  return {
+    // Component Methods
+    methods: {
+      refreshPage: function()
+      {
+        personalView.router.refreshPage();
+      }
+    },
+    // Page Events
+    on: {
+      pageInit: function() {
+        userTeamSelfContent(localStorage.id);
+        getMyTeam(localStorage.id);
+      },
+
+    }
+  }
+</script>

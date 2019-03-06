@@ -1,0 +1,213 @@
+<template>
+  <div class="page no-toolbar">
+    <div class="navbar">
+      <div class="navbar-inner bg-color-white">
+        <div class="left">
+            <a href="#" class="link back">
+              <i class="fa fa-chevron-left color-333"></i>
+            </a>
+          </div>
+        <div class="title">积分明细</div>
+        <div class="subnavbar" style="height: 40px;">
+          <div class="toolbar tabbar bg-color-white" style="height: 40px;">
+            <div class="toolbar-inner">
+              {{#each tabs}}
+              <a href="#tab-{{itemCode}}" @click="userCountDetail({{itemCode}})" class="tab-link {{#if @first}}tab-link-active{{/if}}" style="font-size: 16px;height: 40px;">{{itemName}}</a>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="tabs" id="withdrawUserCount">
+      {{#each tabs}}
+      <div id="tab-{{itemCode}}" class="page-content tab {{#if @first}}tab-active{{/if}} bg-color-df infinite-scroll-content" @infinite="loadMore">
+        <div class="block" id="userDiscussContent{{itemCode}}">
+          
+          
+
+        </div>
+
+        {{#if hasMoreItems}}
+        <div class="preloader infinite-scroll-preloader"></div>
+        {{/if}}
+
+      </div>
+      {{/each}}
+    </div>
+    
+  </div>
+</template>
+<style scoped>
+  .rotate-icon {
+    transform: rotate(90deg);
+  }
+</style>
+<script>
+  return {
+    data: function () {
+      return {
+        tabs: [
+          {itemCode: '1',itemName: '工资',},
+          {itemCode: '2',itemName: '推荐奖励',},
+          {itemCode: '3',itemName: '充值',},
+          {itemCode: '6',itemName: '提现',},
+        ],
+        data:{},
+        allowInfinite: true,
+        hasMoreItems: true,
+        page: 1,
+        lastPage: false,
+        type: 1
+      };
+    },
+    methods: {
+      getAccountDetail: function () {
+        // 实现编写提问
+      },
+      userCountDetail: function(type) {
+        var self = this
+        self.allowInfinite = true;
+        self.$setState({
+          hasMoreItems: true
+        })
+        self.page = 1;
+        self.type = type;
+
+        app.request({
+          headers:{accessToken: accessToken},
+          url: apiUrl + '/capital/list/myself',
+          type: 'post',
+          async: true,
+          data: {pageNum: 1,
+            outline: self.type},
+          dataType: "json",
+          success: function (response) {
+            if (response.status) {
+              temp('#countDetailTemplate','#userDiscussContent'+self.type,response.data)
+              self.data.list = response.data.list;
+              if (response.data.list.length<10) {
+                
+                self.allowInfinite = false;
+                self.lastPage = true;
+                showNotificationFull("该项所有记录已加载")
+              }else {
+                self.lastPage = false;
+              }
+             
+            } else {
+              app.dialog.alert(response.message);
+            }
+          },
+          statusCode: {
+            401: function() {
+              unAuth()
+            },
+            404: function() {
+              notFound()
+            }
+          }
+        }); 
+        self.$setState({
+          hasMoreItems: false
+        })
+      },
+      loadMore: function () {
+        var self = this;
+        var $ = self.$$;
+        if (!self.allowInfinite){
+          self.$setState({
+            hasMoreItems: false,
+          });
+          return ;
+        } else {
+          self.$setState({
+            hasMoreItems: true,
+          });
+          self.allowInfinite = false;
+        }
+
+        setTimeout(function () {
+          self.page += 1;
+          if (!self.lastPage) {
+            // 提现记录
+            app.request({
+              headers:{accessToken: accessToken},
+              url: apiUrl + '/capital/list/myself',
+              type: 'post',
+              async: true,
+              data: {pageNum: self.page,
+                  outline: self.type},
+              dataType: "json",
+              success: function (response) {
+                if (response.status) {
+                  self.data.list =self.data.list.concat(response.data.list) ;
+                  temp('#countDetailTemplate','#userDiscussContent'+self.type,self.data)
+                 
+                  if (response.data.list.length < 10) {
+                    self.allowInfinite = false;
+                    self.lastPage = true;
+                    showNotificationFull("该项所有记录已加载")
+                    return ;
+                  }
+                  
+                } else {
+                  app.dialog.alert(response.message);
+                }
+              },
+            });
+            self.allowInfinite = true;
+          }
+
+          self.$setState({
+            hasMoreItems: false,
+          });
+        }, 1000);
+      
+      }
+    },
+    on: {
+      pageBeforeIn(){
+        var self = this
+        // 积分明细 1-工资；2-奖金；3-充值；6-提现
+              // 4-消费；5-退款；
+        app.request({
+          headers:{accessToken: accessToken},
+          url: apiUrl + '/capital/list/myself',
+          type: 'post',
+          async: true,
+          data: {pageNum: 1,
+            outline: self.type},
+          dataType: "json",
+          success: function (response) {
+            if (response.status) {
+              self.data.list = response.data.list;
+              temp('#countDetailTemplate','#userDiscussContent'+self.type,self.data)
+              self.$setState({
+                  hasMoreItems: false
+                })
+              if (response.data.list.length<10) {
+                self.lastPage = true;
+                self.allowInfinite = false;
+                showNotificationFull("该项所有记录已加载")
+              }
+            } else {
+              app.dialog.alert(response.message);
+            }
+          },
+          statusCode: {
+            401: function() {
+              unAuth()
+            },
+            404: function() {
+              notFound()
+            }
+          }
+        });
+          // app.dialog.alert("请求失败，请检查网络！");
+      
+      }
+    }
+  }
+</script>

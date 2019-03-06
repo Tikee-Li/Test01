@@ -1,0 +1,103 @@
+<template>
+	<div class="page no-toolbar">
+		<div class="navbar">
+            <div class="navbar-inner bg-color-white">
+              <div class="left sliding">
+                <a href="#" class="link back">
+                  <i class="fa fa-chevron-left color-333"></i>
+                </a>
+              </div>
+              <div class="title">
+                我的推荐
+              </div>
+            </div>
+        </div>
+    <div class="page-content bg-color-df">
+
+    	  <div class="chip color-recommend">
+          	<div class="chip-label">
+          		<i class="fa fa-info-circle"></i>您一共推荐了{{rNumber}}位
+          	</div>
+          	<a href="#" class="chip-delete" style="position: absolute;right: 0;" @click="deleteChip"></a>
+        </div>
+
+    	  <div id="userRecommendHis">
+          <div class="list">
+            <ul>
+                <li>
+                  <div class="row re-title">
+                    <div class="col-50 re-left">2019-01-15</div>
+                    <div class="col-50 re-right">第3位</div>
+                  </div>
+                  <div class="row re-content">
+                    <div class="col-50 re-left">推荐人编号</div>
+                    <div class="col-50 re-right">ABC2864</div>
+                  </div>
+                  <div class="row re-content">
+                    <div class="col-50 re-left">手机号</div>
+                    <div class="col-50 re-right">18655602340</div>
+                  </div>
+                  <div class="row re-content">
+                    <div class="col-50 re-left">接点人编号</div>
+                    <div class="col-50 re-right">AAAI8563</div>
+                  </div>
+                </li>
+            </ul>
+          </div>
+        </div>
+        	
+
+    </div>
+  </div>
+</template>
+
+<script>
+  return {
+    // Lifecycle Hooks
+    beforeCreate() {
+
+    },
+
+    // Component Data
+    data: function () {
+      // Must return an object
+      return {
+        rNumber:0
+      }
+    },
+    // Component Methods
+    methods: {
+    	deleteChip(e) {
+	        var $ = this.$;
+	        var app = this.$app;
+	          $(e.target).parents('.chip').remove();
+	    }
+    },
+    // Page Events
+    on: {
+      pageInit: function() {
+        var self = this
+
+        getMyRecommend();
+        app.request({
+          headers:{accessToken: accessToken},
+          url: apiUrl + '/pub/apply/count',
+          type: 'post',
+          async: true,
+          // data: {id: id},
+          dataType: "json",
+          success: function (response) {
+            if (response.status) {
+              self.$setState({
+                rNumber:response.data
+              })
+            } else {
+              showNotificationFull(response.message);
+            }
+          }
+        });
+      },
+
+    }
+  }
+</script>

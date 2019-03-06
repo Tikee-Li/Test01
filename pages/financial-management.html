@@ -1,0 +1,121 @@
+<template>
+	<div class="page no-toolbar">
+		<div class="navbar">
+            <div class="navbar-inner" style="background-color: #F18D62;">
+              <div class="left">
+                <a href="#" class="link back color-white">
+                  <i class="fa fa-chevron-left"></i>
+                </a>
+              </div>
+              <div class="title color-white">
+                财务管理
+              </div>
+            </div>
+        </div>
+    <div class="page-content bg-color-df">
+      <!-- 用户信息 -->
+      <div class="user-header">
+        <div class="acc-score">{{number}}</div>
+        <div class="acc-intro">可用积分</div>
+      </div>
+        
+      <!-- 分类 -->
+      <div class="list">
+        <ul>
+          <li>
+            <a href="/withdraw-user-count/" class="item-content item-link">
+              <div class="item-media"><img src="img/icon_cwjftx.png" width="65"/></div>
+              <div class="item-inner">
+                <div class="item-title">积分提现
+                </div>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="/add-bank-card/" class="item-content item-link">
+              <div class="item-media"><img src="img/icon_cwbcard.png" width="65"/></div>
+              <div class="item-inner">
+                <div class="item-title">银行卡
+                </div>
+                <div class="item-after">{{cardStatus}}</div>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="/withdraw-history/" class="item-content item-link">
+              <div class="item-media"><img src="img/icon_cwtxjl.png" width="65"/></div>
+              <div class="item-inner">
+                <div class="item-title">提现记录
+                </div>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</template>
+
+<script>
+  return {
+    // Lifecycle Hooks
+    beforeCreate() {
+
+    },
+
+    // Component Data
+    data: function () {
+      // Must return an object
+      return {
+        number: 0,
+        cardStatus: "去绑定"
+      }
+    },
+    // Component Methods
+    methods: {
+    
+    },
+    // Page Events
+    on: {
+      pageAfterIn: function() {
+        var self = this
+        var id = localStorage.id
+        app.request({
+          headers:{accessToken: accessToken},
+          url: apiUrl + '/user/detail',
+          type: 'post',
+          async: true,
+          data: {id:id},
+          dataType: "json",
+          success: function (response) {
+            if (response.status) {
+              if (response.data.bankAccount) {
+                self.$setState({
+                  cardStatus: "去更换",
+                  number: response.data.integral
+                })
+              } else {
+                self.$setState({
+                  number: response.data.integral
+                })
+              }
+              
+            } else {
+              app.dialog.alert(response.message);
+            }
+          },
+          statusCode: {
+            401: function() {
+              unAuth()
+            },
+            404: function() {
+              notFound()
+            }
+          }
+        });
+      },
+
+    }
+  }
+</script>
